@@ -1,51 +1,67 @@
+# input library
+import numpy as np
 import streamlit as st
 import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.svm import SVC
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
+from sklearn.neural_network import MLPRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 
-df = sns.load_dataset('iris')
-df
+# define x and y
+x = 4*np.random.rand(100)
+y = np.sin(2*x+1) + 0.1*np.random.randn(100)
 
-x = df.iloc[:, :-1]
-y = df['species']
+# create side bar for select the classifier
+st.sidebar.title('Classifier Selection')
+classifier = st.sidebar.selectbox('Select Classifier', ('KNN', 'SVM', 'Decision Tree', 'Random Forest', 'Neural Network'))
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+# giving the k-value as a slide bar
+k = st.sidebar.slider('K Value', 1, 20, 1)
 
-st.sidebar.title('Classifiers')
-classifier = st.sidebar.selectbox('Select Classifier', ('KNN', 'SVM','DT','RF','NN'))
-k = st.sidebar.slider('k',1,20,3)
+# check condition if select the side bar to calculate the accuracy
 if classifier == 'KNN':
-  knn = KNeighborsClassifier(n_neighbors=k)
-  knn.fit(x_train, y_train)
-  y_pred = knn.predict(x_test)
-  acc = accuracy_score(y_test, y_pred)
-  st.write(acc)
+  knn = KNeighborsRegressor(n_neighbors=5)
+  knn.fit(x.reshape(-1, 1), y)
+  y_pred = knn.predict(x.reshape(-1, 1))
+  fig, ax = plt.subplots()
+  ax.scatter(x, y)
+  ax.scatter(x, y_pred)
+  st.pyplot(fig)
+  
 if classifier == 'SVM':
-  svm = SVC()
-  svm.fit(x_train, y_train)
-  y_pred = svm.predict(x_test)
-  acc = accuracy_score(y_test, y_pred)
-  st.write(acc)
-if classifier == 'DT':
-  dt = DecisionTreeClassifier()
-  dt.fit(x_train, y_train)
-  y_pred = dt.predict(x_test)
-  acc=accuracy_score(y_test, y_pred)
-  st.write(acc)
-if classifier == 'RF':
-  rf = RandomForestClassifier()
-  rf.fit(x_train, y_train)
-  y_pred = rf.predict(x_test)
-  acc=accuracy_score(y_test, y_pred)
-  st.write(acc)
-if classifier == 'NN':
-  nn = MLPClassifier(hidden_layer_sizes=(100,100,100))
-  nn.fit(x_train, y_train)
-  y_pred = nn.predict(x_test)
-  acc=accuracy_score(y_test, y_pred)
-  st.write(acc)
+  svm = SVR(kernel='rbf')
+  svm.fit(x.reshape(-1,1), y)
+  y_pred = svm.predict(x.reshape(-1,1))
+  fig, ax = plt.subplots()
+  ax.scatter(x, y)
+  ax.scatter(x, y_pred)
+  st.pyplot(fig)
+  
+if classifier == 'Neural Network':
+  nn = MLPRegressor(hidden_layer_sizes=(10,10), max_iter=1000)
+  nn.fit(x.reshape(-1,1), y)
+  y_pred = nn.predict(x.reshape(-1,1))
+  fig, ax = plt.subplots()
+  ax.scatter(x, y)
+  ax.scatter(x, y_pred)
+  st.pyplot(fig)
+  
+if classifier == 'Decision Tree':
+  dt = DecisionTreeRegressor()
+  dt.fit(x.reshape(-1,1), y)
+  y_pred = dt.predict(x.reshape(-1,1))
+  fig, ax = plt.subplots()
+  ax.scatter(x, y)
+  ax.scatter(x, y_pred)
+  st.pyplot(fig)
+  
+if classifier == 'Random Forest':
+  rf = RandomForestRegressor(n_estimators=100)
+  rf.fit(x.reshape(-1,1), y)
+  y_pred = rf.predict(x.reshape(-1,1))
+  fig, ax = plt.subplots()
+  ax.scatter(x, y)
+  ax.scatter(x, y_pred)
+  st.pyplot(fig)
